@@ -1,0 +1,473 @@
+/* Custom CSS for AdKompas WhatsApp Widget and CRM Pop-up modal */
+
+/* Variables */
+:root {
+  --primary-color: #FF4D1C; /* AdKompas Orange */
+  --primary-hover: #e03b0d;
+  --primary-dark: #b82c05;
+  --text-dark: #090d16; /* Deep dark slate */
+  --text-muted: #64748b; /* Slate 500 */
+  --text-label: #475569; /* Slate 600 */
+  --bg-modal: #ffffff;
+  --bg-backdrop: rgba(9, 13, 22, 0.7); /* Slightly darker backdrop */
+  --border-color: #cbd5e1; /* Slate 300 */
+  --border-focus: #FF4D1C; /* Focus on Brand Orange */
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --font-sans: 'Instrument Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Reset / Core */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-dark);
+  background-color: #00081a; /* Dark background matching AdKompas theme */
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Noise overlay simulation matching AdKompas */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 99999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3e%3cfilter id='noiseFilter'%3e%3cfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3e%3c/filter%3e%3crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3e%3c/svg%3e");
+}
+
+/* Demo Landing Page Layout */
+.demo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.demo-logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.demo-logo img {
+  height: 50px;
+  width: auto;
+}
+
+.demo-title {
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 650px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+/* Floating WhatsApp Button */
+.whatsapp-float {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background-color: #25D366; /* Standard WhatsApp Green for high visibility */
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3), var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1) rotate(5deg);
+  background-color: #1ebd54;
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4), var(--shadow-xl);
+}
+
+.whatsapp-float svg {
+  width: 32px;
+  height: 32px;
+  fill: #fff;
+}
+
+/* Pulsing glow animation */
+.whatsapp-float::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 2px solid #25D366;
+  animation: pulse-glow 2s infinite;
+  opacity: 0.6;
+}
+
+@keyframes pulse-glow {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-backdrop);
+  backdrop-filter: blur(12px); /* High blur premium backdrop */
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  padding: 20px;
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Modal Container */
+.modal-container {
+  background-color: var(--bg-modal);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 28px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
+  transform: scale(0.9) translateY(40px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.modal-backdrop.active .modal-container {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* Modal Close Button */
+.modal-close-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background-color: #e2e8f0;
+  color: var(--text-dark);
+}
+
+/* Modal Header styling matching mockup with AdKompas coloring */
+.modal-header {
+  padding: 40px 32px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.whatsapp-logo-wrapper {
+  width: 64px;
+  height: 64px;
+  background-color: #25D366; /* Use standard WhatsApp green for brand recognition */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 16px rgba(37, 211, 102, 0.2);
+}
+
+.whatsapp-logo-wrapper svg {
+  width: 36px;
+  height: 36px;
+  fill: #fff;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.modal-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+/* Modal Form Fields */
+.modal-form {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-label);
+  letter-spacing: 0.06em;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  background-color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(255, 77, 28, 0.1); /* AdKompas orange focus shadow */
+}
+
+.form-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Mobile Input with Country Selection */
+.mobile-input-wrapper {
+  display: flex;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.mobile-input-wrapper:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(255, 77, 28, 0.1);
+}
+
+.country-select-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background-color: #f8fafc;
+  border-right: 1.5px solid var(--border-color);
+}
+
+.country-flag-icon {
+  width: 20px;
+  margin-right: 6px;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.country-select {
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  outline: none;
+  padding-right: 12px;
+  appearance: none;
+}
+
+.country-select-container::after {
+  content: '▼';
+  font-size: 8px;
+  color: var(--text-muted);
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+}
+
+.phone-input {
+  flex: 1;
+  border: none;
+  padding: 14px 16px;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  color: var(--text-dark);
+  outline: none;
+  background: transparent;
+}
+
+.phone-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Primary Modal CTA Button with AdKompas Branding */
+.btn-submit {
+  width: 100%;
+  background-color: var(--primary-color); /* AdKompas Orange */
+  color: #fff;
+  border: none;
+  padding: 16px;
+  border-radius: 14px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 77, 28, 0.2);
+  transition: all 0.2s ease;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(255, 77, 28, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+.btn-submit svg {
+  width: 20px;
+  height: 20px;
+  fill: #fff;
+}
+
+/* Form Validation shake error class */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.shake-error {
+  animation: shake 0.3s ease;
+  border-color: #ef4444 !important;
+}
+
+/* Loading Spinner style inside submission button */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  display: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-submit.loading .spinner {
+  display: inline-block;
+}
+
+.btn-submit.loading .btn-text, .btn-submit.loading svg {
+  display: none;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background-color: #090d16;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success {
+  border-left: 4px solid var(--primary-color);
+}
+
+.toast-error {
+  border-left: 4px solid #ef4444;
+}
